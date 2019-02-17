@@ -66,7 +66,6 @@
                 var file = $(this).prop('files')[0];
                 var fr = new FileReader();
                 fr.onload = function () {
-                    console.log(fr.result)
                 };
                 fr.readAsText( file );
                 }
