@@ -1,0 +1,7 @@
+{
+  "name": "flink",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

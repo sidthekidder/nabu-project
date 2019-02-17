@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Send NABU</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+	<div *ngIf="state == 0">
+		<h4>Enter Amount:</h4>
+		<ion-item>
+			<ion-input [(ngModel)]="amount" type="number" value="0"></ion-input>
+		</ion-item>
+		<p><ion-text color="medium">Current Balance: {{dataService.userBalance}} NABU</ion-text></p>
+		<h4>To:</h4>
+		<ion-item>
+			<ion-input name="to" value="17a2K8t6nkXzb2ENAkcLfcChLbiDEFVxJh"></ion-input>
+		</ion-item>
+		<br>
+		<br>
+		<ion-button color="primary" (click)="sendTxn()">Send</ion-button>
+	</div>
+
+	<div *ngIf="state == 1">
+		<h4>Sent {{amount}} NABU Successfully!</h4>
+		<br>
+		<br>
+		<ion-button color="primary" (click)="exit()">Continue</ion-button>
+	</div>
+</ion-content>

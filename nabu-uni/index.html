@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>NABU University</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="file-upload.css" />
+        <script src="jquery.js"></script>
+        <script src="file-upload.js"></script>
+        <script type="text/javascript" src="parse-xml.min.js"></script>
+        <script type="text/javascript" src="web3.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.file-upload').file_upload();
+            });
+        </script>
+    </head>
+    <body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4">NABU University Admin</h1>
+            <p class="lead">Enter student grade data here to generate XML files, or upload XML files to the NABU smart contract.</p>
+            </p>
+
+            <form>
+                <div class="row form-group">
+                    <div class="col-sm-10">
+                        <label class="file-upload btn btn-primary">
+                            Upload XML File To Smart Contract <input type="file" id="upload" />
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Select School: </label>
+                <select id="dropdown"></select>
+            </div>
+            <div class="col-md-6">
+                <label>NCES ID: </label>
+                <span class="NCES">B04724</span>
+            </div>
+        </div>
+
+        <table id="myTable" class="table order-list">
+            <thead>
+                <tr>
+                    <th style="width: 70%">Student ID</th>
+                    <th style="width: 30%">Grade</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td class="col-sm-4">
+                        <input type="text" name="name" class="form-control" autocomplete="off" />
+                    </td>
+                    <td class="col-sm-4">
+                        <input type="mail" name="mail"  class="form-control" autocomplete="off" />
+                    </td>
+                    <td class="col-sm-2"><a class="deleteRow"></a>
+                    </td>
+                </tr>
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <td colspan="5" style="text-align: left;">
+                        <input type="button" class="btn btn-lg btn-block " id="addrow" value="Add Grade" />
+                    </td>
+                </tr>
+                <tr>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="row justify-content-md-center">
+            <div class="col-md-5">
+                <input type="button" class="generateBtn btn btn-primary btn-block" id="addrow" value="Generate XML File" />
+            </div>
+        </div>
+
+    </div>
+      
+    <script type="text/javascript">
+
+    var schoolsList = [{"code":"B04724","name":"WIDENER UNIVERSITY - DELAWARE LAW SCHOOL"},{"code":"B06171","name":"CENTER FOR ADVANCED STUDIES OF PUER"},{"code":"B06511","name":"PENTECOSTAL THEOLOGICAL SEMINARY"},{"code":"B07022","name":"THE CHICAGO SCHOOL OF PROF PSYCHOLOGY"},{"code":"B07624","name":"NATIONAL UNIVERSITY OF NATURAL MEDICINE"},{"code":"B07625","name":"OREGON COLLEGE OF ORIENTAL MEDICINE"},{"code":"B08041","name":"ALFRED ADLER GRADUATE SCHOOL"},{"code":"B08083","name":"UNIV OF THE DIST OF COLU -SCHOOL OF LAW"},{"code":"B42154","name":"GRACE SCHOOL OF THEOLOGY"},{"code":"E00014","name":"AMRCN REPERTORY THTR INST ADV THTR"},{"code":"E00058","name":"BROWN UNIVERSITY - GRADUATE SCHOOL"},{"code":"E00059","name":"BROWN MEDICAL SCHOOL"},{"code":"E00074","name":"CARNEGIE MELLON- TEPPER SCHOOL OF BUSINE"},{"code":"E00077","name":"CASE WESTERN RESERVE UNIV - UG"},{"code":"E00078","name":"CASE WESTERN RESERVE UNIV - DENTAL"},{"code":"E00079","name":"CASE WESTERN RESERVE UNIV - MED"},{"code":"E00080","name":"CASE WESTERN RESERVE UNIV - WSOM"},{"code":"E00081","name":"CASE WESTERN RESERVE UNIV - NURS UG"},{"code":"E00082","name":"CASE WESTERN RESERVE UNIV - LAW"},{"code":"E00083","name":"CASE WESTERN RESERVE UNIV -NURS GRD"},{"code":"E00084","name":"CASE WESTERN RESERVE UNIV - MSASS"},{"code":"E00131","name":"CATHOLIC UNIV AMERICA, LAW SCHOOL"},{"code":"E00171","name":"EAST TENNESSEE STATE UNIV - MEDICINE"},{"code":"E00177","name":"ERSKINE THEOLOGICAL SEMINARY"},{"code":"E00196","name":"GEORGE WASHINGTON UNIV LAW SCHL"},{"code":"E00197","name":"GEORGE WASHINGTON UNIV SCH MED"},{"code":"E00209","name":"HARVARD EXTENSION SCHOOL"},{"code":"E00210","name":"HARVARD DIVINITY SCHOOL"},{"code":"E00212","name":"HARVARD UNIV GRAD SCH DESIGN"},{"code":"E00213","name":"HARVARD UNIV GRAD SCH ED"}];
+
+    $(document).ready(function () {
+
+        let web3 = new Web3('https://sokol.poa.network')
+
+        var options = $.map(schoolsList, function (item, i) {
+            return $('<option>', { text: item.name, value: item.code });
+        });
+        $("#dropdown").empty().append(options);
+        $("#dropdown").change(function() {
+            $(".NCES").text(this.value)
+        })
+
+        var counter = 0;
+
+        $("#addrow").on("click", function () {
+            var newRow = $("<tr>");
+            var cols = "";
+
+            cols += '<td><input type="text" class="form-control" autocomplete="off" name="sid' + counter + '"/></td>';
+            cols += '<td><input type="text" class="form-control" autocomplete="off" name="grade' + counter + '"/></td>';
+
+            cols += '<td><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Delete"></td>';
+            newRow.append(cols);
+            $("table.order-list").append(newRow);
+            counter++;
+        });
+
+        $("table.order-list").on("click", ".ibtnDel", function (event) {
+            $(this).closest("tr").remove();       
+            counter -= 1
+        });
+
+        $(".generateBtn").on('click', function() {
+            let xmlContent = ''
+
+            var data = [];
+            $("#myTable").find('tr').each(function (rowIndex, r) {
+                var cols = [];
+                $(this).find('th,td').each(function (colIndex, c) {
+                    // cols.push(c.textContent);
+                    // console.log($(c).text())
+                    // console.log($(c).val())
+                    console.log(c)
+                });
+                data.push(cols);
+            });
+
+            return
+
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(xmlContent));
+            element.setAttribute('download', "students.xml");
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        })
+
+        $('#upload').change(function() {
+            web3.eth.sendTransaction({
+                // From address will automatically be replaced by the address of current user
+                from: "0x0000000000000000000000000000000000000000",
+                to: '0xE3aDC48955C12262c1aAF2660C9226999857F124',
+                value: web3.utils.toWei("100", 'wei')
+            });
+        })
+    });
+
+    </script>
+    </body>
+</html>

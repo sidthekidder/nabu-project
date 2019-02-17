@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+	<h5>Your Address: <ion-input [(ngModel)]="inputAddr" type="text"></ion-input></h5>
+	<ion-button color="primary" (click)="fetchBalance()">Fetch Balance</ion-button>
+
+	<div *ngIf="userBalance.length > 0">
+		<h4>Your Balance: <ion-text color="dark">{{ userBalance }} NABU</ion-text></h4>
+		<br>
+		<h4>QR Code:</h4>
+		<img *ngIf="displayQrCode()" [src]="QRCode" />
+		<br>
+		<h4>Transaction History</h4>
+		<ion-grid>
+			<ion-row class="row header">
+				<ion-col class="col"><div>Date</div></ion-col>
+				<ion-col class="col"><div>To</div></ion-col>
+				<ion-col class="col"><div>Amount</div></ion-col>
+			</ion-row>
+
+			<ion-row class="row">
+				<ion-col class="col"><div>30 Aug 2018</div></ion-col>
+				<ion-col class="col"><div>Joseph Lubin</div></ion-col>
+				<ion-col class="col"><div>20 NABU</div></ion-col>
+			</ion-row>
+			<ion-row class="row">
+				<ion-col class="col"><div>27 July 2018</div></ion-col>
+				<ion-col class="col"><div>Charlie Lee</div></ion-col>
+				<ion-col class="col"><div>50 NABU</div></ion-col>
+			</ion-row>
+			<ion-row class="row">
+				<ion-col class="col"><div>14 Apr 2018</div></ion-col>
+				<ion-col class="col"><div>Roger Ver</div></ion-col>
+				<ion-col class="col"><div>11 NABU</div></ion-col>
+			</ion-row>
+		</ion-grid>
+	</div>
+</ion-content>
