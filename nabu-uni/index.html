@@ -89,7 +89,7 @@
 
     var schoolsList = [{"code":"B04724","name":"WIDENER UNIVERSITY - DELAWARE LAW SCHOOL"},{"code":"B06171","name":"CENTER FOR ADVANCED STUDIES OF PUER"},{"code":"B06511","name":"PENTECOSTAL THEOLOGICAL SEMINARY"},{"code":"B07022","name":"THE CHICAGO SCHOOL OF PROF PSYCHOLOGY"},{"code":"B07624","name":"NATIONAL UNIVERSITY OF NATURAL MEDICINE"},{"code":"B07625","name":"OREGON COLLEGE OF ORIENTAL MEDICINE"},{"code":"B08041","name":"ALFRED ADLER GRADUATE SCHOOL"},{"code":"B08083","name":"UNIV OF THE DIST OF COLU -SCHOOL OF LAW"},{"code":"B42154","name":"GRACE SCHOOL OF THEOLOGY"},{"code":"E00014","name":"AMRCN REPERTORY THTR INST ADV THTR"},{"code":"E00058","name":"BROWN UNIVERSITY - GRADUATE SCHOOL"},{"code":"E00059","name":"BROWN MEDICAL SCHOOL"},{"code":"E00074","name":"CARNEGIE MELLON- TEPPER SCHOOL OF BUSINE"},{"code":"E00077","name":"CASE WESTERN RESERVE UNIV - UG"},{"code":"E00078","name":"CASE WESTERN RESERVE UNIV - DENTAL"},{"code":"E00079","name":"CASE WESTERN RESERVE UNIV - MED"},{"code":"E00080","name":"CASE WESTERN RESERVE UNIV - WSOM"},{"code":"E00081","name":"CASE WESTERN RESERVE UNIV - NURS UG"},{"code":"E00082","name":"CASE WESTERN RESERVE UNIV - LAW"},{"code":"E00083","name":"CASE WESTERN RESERVE UNIV -NURS GRD"},{"code":"E00084","name":"CASE WESTERN RESERVE UNIV - MSASS"},{"code":"E00131","name":"CATHOLIC UNIV AMERICA, LAW SCHOOL"},{"code":"E00171","name":"EAST TENNESSEE STATE UNIV - MEDICINE"},{"code":"E00177","name":"ERSKINE THEOLOGICAL SEMINARY"},{"code":"E00196","name":"GEORGE WASHINGTON UNIV LAW SCHL"},{"code":"E00197","name":"GEORGE WASHINGTON UNIV SCH MED"},{"code":"E00209","name":"HARVARD EXTENSION SCHOOL"},{"code":"E00210","name":"HARVARD DIVINITY SCHOOL"},{"code":"E00212","name":"HARVARD UNIV GRAD SCH DESIGN"},{"code":"E00213","name":"HARVARD UNIV GRAD SCH ED"}];
 
-    let tokenAddress = "0xc316edA27D34F5C2a426F90fDedC23773aB9B9D8";
+    let tokenAddress = "0x5d7640c8c418f02b3e3bee9acfe057aea1be59ca";
     let walletAddress = "0x8E64EB49743BCf728058a7bb9FE1FceD9803f0d4";
 
     // The ABI to get ERC20 Token balance
@@ -99,7 +99,7 @@
             "inputs": [
                 {
                     "name": "_sid",
-                    "type": "bytes32"
+                    "type": "uint256"
                 },
                 {
                     "name": "_addr",
@@ -209,23 +209,23 @@
             "inputs": [
                 {
                     "name": "A_students",
-                    "type": "bytes32[]"
+                    "type": "uint256[]"
                 },
                 {
                     "name": "B_students",
-                    "type": "bytes32[]"
+                    "type": "uint256[]"
                 },
                 {
                     "name": "C_students",
-                    "type": "bytes32[]"
+                    "type": "uint256[]"
                 },
                 {
                     "name": "D_students",
-                    "type": "bytes32[]"
+                    "type": "uint256[]"
                 },
                 {
                     "name": "F_students",
-                    "type": "bytes32[]"
+                    "type": "uint256[]"
                 }
             ],
             "name": "distribute",
@@ -467,7 +467,7 @@
             "inputs": [
                 {
                     "name": "",
-                    "type": "bytes32"
+                    "type": "uint256"
                 }
             ],
             "name": "studentMapping",
@@ -510,18 +510,6 @@
             "type": "function"
         }
     ]
-
-    function toHex(str) {
-        try {
-            hex = unescape(encodeURIComponent(str)).split('').map(function(v) {
-                return v.charCodeAt(0).toString(16)
-            }).join('')
-        } catch(e) {
-            hex = str
-            console.log('invalid text input: ' + str)
-        }
-        return hex
-    }
 
     $(document).ready(function () {
 
@@ -598,7 +586,7 @@
                         for(var j = 0 ; j < ele.children.length ; j += 1) {
                             if (ele.children[j].type == "element") {
                                 if (ele.children[j].name == "id")
-                                    obj['id'] = ele.children[j].children[0].text // convert ID string to hex format
+                                    obj['id'] = parseInt(ele.children[j].children[0].text) // convert ID string to hex format
                                 else
                                     obj['grade'] = ele.children[j].children[0].text
                             }
@@ -615,22 +603,24 @@
 
                 for(var i = 0 ; i < students.length ; i++) {
                     switch (students[i]['grade']) {
-                        case 'A': A_grades.push(web3.utils.asciiToHex(students[i]['id'], 32)); break;
-                        case 'B': B_grades.push(web3.utils.asciiToHex(students[i]['id'], 32)); break;
-                        case 'C': C_grades.push(web3.utils.asciiToHex(students[i]['id'], 32)); break;
-                        case 'D': D_grades.push(web3.utils.asciiToHex(students[i]['id'], 32)); break;
-                        case 'F': F_grades.push(web3.utils.asciiToHex(students[i]['id'], 32)); break;
+                        case 'A': A_grades.push(students[i]['id']); break;
+                        case 'B': B_grades.push(students[i]['id']); break;
+                        case 'C': C_grades.push(students[i]['id']); break;
+                        case 'D': D_grades.push(students[i]['id']); break;
+                        case 'F': F_grades.push(students[i]['id']); break;
                     }
                 }
 
                 console.log("Distributing tokens now!")
                 console.log(A_grades)
                 console.log(B_grades)
-                
+
                 // Call distribute function
                 var contractAbi = new web3.eth.Contract(minABI, tokenAddress);
-                var distribute = contractAbi.methods.distribute(A_grades, B_grades, C_grades, D_grades, F_grades).call({
-                    from: walletAddress
+                var distribute = contractAbi.methods.distribute(A_grades, B_grades, C_grades, D_grades, F_grades).send({
+                    from: walletAddress,
+                    gasPrice: 1000000000,
+                    gas: 29152
                 }, (error, result) => { 
                     console.log(error)
                     console.log(result)

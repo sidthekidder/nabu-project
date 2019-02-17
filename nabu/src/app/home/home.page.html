@@ -5,11 +5,12 @@
 </ion-header>
 
 <ion-content padding>
-	<h5>Your Address: <ion-input [(ngModel)]="inputAddr" type="text"></ion-input></h5>
+	<h5>Your ID: <ion-input [(ngModel)]="inputAddr" type="text"></ion-input></h5>
 	<ion-button color="primary" (click)="fetchBalance()">Fetch Balance</ion-button>
 
 	<div *ngIf="userBalance.length > 0">
 		<h4>Your Balance: <ion-text color="dark">{{ userBalance }} NABU</ion-text></h4>
+		<h4>Your Address: <ion-text color="dark">{{ dataService.userAddr }}</ion-text></h4>
 		<br>
 		<h4>QR Code:</h4>
 		<img *ngIf="displayQrCode()" [src]="QRCode" />

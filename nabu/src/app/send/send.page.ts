@@ -16,6 +16,7 @@ export class SendPage implements OnInit {
   state: number
   toAddr: any
   web3: any
+  pk = ''
   amount: any
 
   constructor(public modalCtrl: ModalController, public dataService: DataService) {
@@ -34,13 +35,17 @@ export class SendPage implements OnInit {
   sendTxn() {
   	let that = this
   	console.log("Sending from " + that.dataService.userAddr)
-  	this.changeState(1)
-	this.web3.eth.sendTransaction({
-		// From address will automatically be replaced by the address of current user
-		from: that.dataService.userAddr,
-		to: '0xE3aDC48955C12262c1aAF2660C9226999857F124',
-		value: that.web3.utils.toWei(this.amount.toString(), 'wei')
-	});
+  	console.log(that.dataService.tokenAddress)
+  	
+	// Get ERC20 Token contract instance
+	let contract = web3.eth.contract(that.dataService.minABI).at(that.dataService.tokenAddress);
+
+	this.changeState(1)
+	contract.transfer('0x8E64EB49743BCf728058a7bb9FE1FceD9803f0d4', this.amount).send({
+	    from: that.dataService.userAddr,
+	    gas: 29152,
+	    gasPrice: 1000000000
+	}, (err, res) => { console.log(err); console.log(res) });
   }
 
   exit() {
